@@ -1,0 +1,11 @@
+# build artifacts
+dist
+web-ext-artifacts
+
+# node modules
+node_modules
+
+# other junk
+updates.json
+dist.crx
+dist.pem
