@@ -1,13 +1,10 @@
 {
     "manifest_version": 2,
-    "name": "Booru Lightbox",
-    "version": "<%= pkg.version %>",
-    "description": "<%= pkg.description %>",
     "icons": {
-        "48": "img/icon-48.png",
-        "96": "img/icon-96.png"
+        "48": "assets/icon-48.png",
+        "96": "assets/icon-96.png"
     },
-    "applications": {
+    "firefox:applications": {
         "gecko": {
             "id": "booru-lightbox@tylian.net",
             "update_url": "https://tylian.net/lightbox/updates.json"
@@ -17,17 +14,17 @@
     "content_scripts": [
         {
             "matches": ["*://*.gelbooru.com/*", "*://*.rule34.xxx/*"],
-            "css": ["style.css"],
+            "css": ["BooruLightbox.css"],
             "js": ["BooruLightbox.js", "gelbooru.js"]
         },
         {
             "matches": ["*://*.e621.net/*", "*://*.e926.net/*"],
-            "css": ["style.css"],
+            "css": ["BooruLightbox.css"],
             "js": ["BooruLightbox.js", "ouroboros.js"]
         },
         {
             "matches": ["*://*.danbooru.donmai.us/*"],
-            "css": ["style.css"],
+            "css": ["BooruLightbox.css"],
             "js": ["BooruLightbox.js", "danbooru.js"]
         }
     ]

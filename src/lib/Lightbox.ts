@@ -1,24 +1,32 @@
-import { h, Point } from './Utils';
-import MiniEvent from './MiniEvent';
+import DomBuilder from './utils/DomBuilder';
+import MiniEvent from './utils/MiniEvent';
 
-import * as mediaHandlers from './media/handlers.js';
+import * as mediaHandlers from './media/handlers';
+import MediaHandler from './media/MediaHandler';
 
-export default class Lightbox extends MiniEvent {
-  constructor(settings) {
+import "../css/lightbox.scss";
+
+export interface ISettings {
+  poll_interval: number;
+}
+
+interface Events {
+  change: (next: boolean) => void;
+}
+
+export default class Lightbox extends MiniEvent<Events> {
+  private locked = false;
+  private visible = false;
+
+  private handler?: MediaHandler = undefined;
+
+  public shade = DomBuilder.create("div")
+    .attr("id", "lightbox_shade")
+    .on("click", () => { this.hide() })
+    .build();
+
+  constructor(public settings: ISettings) {
     super();
-
-    this.locked = false;
-    this.visible = false;
-    this.settings = settings;
-
-    this.currentHandler = undefined;
-
-    // body.innerHTML += "stuff" explodes e621
-    this.shade = h("div#lightbox_shade", {
-      onclick: e => {
-        this.hide();
-      }
-    });
 
     document.body.appendChild(this.shade);
 
@@ -32,13 +40,13 @@ export default class Lightbox extends MiniEvent {
     }, true);
   }
 
-  supports(extension) {
+  supports(extension: string) {
     return Object.values(mediaHandlers).some(handler => (
       handler.supports(extension)
     ));
   }
 
-  load(url) {
+  load(url: string) {
     this.destroy();
 
     let extension = url.slice(url.lastIndexOf(".") + 1);
@@ -46,20 +54,20 @@ export default class Lightbox extends MiniEvent {
       handler.supports(extension)
     ));
 
-    if (!Handler) {
+    if(!Handler) {
       return false;
     }
 
     this.handler = new Handler(this, url);
   }
 
-  preload(url) {
+  preload(url: string) {
     let extension = url.slice(url.lastIndexOf(".") + 1);
     const Handler = Object.values(mediaHandlers).find(handler => (
       handler.supports(extension)
     ));
 
-    if (!Handler) {
+    if(!Handler) {
       return false;
     }
 

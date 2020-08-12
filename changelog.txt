@@ -4,6 +4,13 @@
  ! Bugfix
  * Notice
 
+== 5.0.1 ==
+ * Firefox is bullying me
+
+== 5.0.0 ==
+ * Recoded the entire codebase into TypeScript
+ * Completely redid the build system... again.
+
 == 4.5.0 ==
  * I lost a bunch of versions cause I'm smart lmao
  * Redid a bunch of the build setup, no actual functional changes

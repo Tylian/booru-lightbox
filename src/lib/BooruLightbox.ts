@@ -1,20 +1,20 @@
 import Lightbox from './Lightbox';
 import settings from './settings';
 
-export default class BooruLightbox {
-  constructor(site) {
-    this.manifest = browser.runtime.getManifest();
-    this.log("Starting up version:", this.manifest.version);
-    this.getSettings().then(settings => {
-      this.imageCache = new Map();
-      this.preloadCache = new Set();
-      this.currentId = "";
-      this.settings = settings;
+export type ImageId = string | number;
 
-      this.log("Detected:", site);
-      this.lightbox = new Lightbox(this.settings.lightbox);
-      this.initEvents();
-    });
+export default class BooruLightbox {
+  protected manifest = browser.runtime.getManifest();
+  protected settings = settings;
+  protected lightbox = new Lightbox(this.settings.lightbox);
+  protected currentId: ImageId = "";
+  protected imageCache = new Map<ImageId, string>();
+  protected preloadCache = new Set<ImageId>();
+
+  constructor(site: string) {
+    this.log("Starting up version:", this.manifest.version);
+    this.log("Detected:", site);
+    this.initEvents();
   }
 
   initEvents() {
@@ -32,24 +32,24 @@ export default class BooruLightbox {
     return settings;
   }
 
-  async fetchImageURL(id) {
+  async fetchImageURL(id: ImageId): Promise<string> {
     throw new Error("fetchImageURL not implemented on child class!");
   }
-  async getNextId(id) {
+  async getNextId(id: ImageId): Promise<ImageId | null> {
     throw new Error("getNextId not implemented on child class!");
   }
-  async getPreviousId(id) {
+  async getPreviousId(id: ImageId): Promise<ImageId | null> {
     throw new Error("getPreviousId not implemented on child class!");
   }
 
-  async fetchImageCache(id) {
+  async fetchImageCache(id: ImageId) {
     if (this.imageCache.has(id)) {
       return this.imageCache.get(id);
     } else {
       let url = await this.fetchImageURL(id);
       let extension = url.slice(url.lastIndexOf(".") + 1);
       if (!this.lightbox.supports(extension)) {
-        url = browser.runtime.getURL("img/unsupported.png");
+        url = browser.runtime.getURL("assets/unsupported.png");
       }
 
       this.imageCache.set(id, url);
@@ -57,11 +57,14 @@ export default class BooruLightbox {
     }
   }
 
-  async showLightbox(id) {
+  async showLightbox(id: ImageId) {
     this.lightbox.show();
     let url = await this.fetchImageCache(id);
     this.currentId = id;
-    this.lightbox.load(url);
+
+    if(url !== undefined) {
+      this.lightbox.load(url);
+    }
 
     if (this.settings.preload) {
       this.preloadId(await this.getNextId(id));
@@ -69,19 +72,23 @@ export default class BooruLightbox {
     }
   }
 
-  async preloadId(id) {
+  async preloadId(id: ImageId | null) {
     if (id === null || this.preloadCache.has(id)) return;
     let url = await this.fetchImageCache(id);
-    this.preloadCache.add(id);
-    this.lightbox.preload(url);
+    
+    if(url !== undefined) {
+      this.preloadCache.add(id);
+      this.lightbox.preload(url);
+    }
   }
 
-  debug() {
-    if (this.settings.debug) this.log(...arguments);
+  debug(...args: any[]) {
+    if (this.settings.debug) {
+      this.log(...args);
+    }
   }
 
-  log() {
-    var args = [`[${this.manifest.name}]`, ...arguments];
-    console.log(...args);
+  log(...args: any[]) {
+    console.log(...[`[${this.manifest.name}]`, ...args]);
   }
 }

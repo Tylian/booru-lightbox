@@ -9,3 +9,6 @@ node_modules
 updates.json
 dist.crx
 dist.pem
+
+# ide
+.vscode

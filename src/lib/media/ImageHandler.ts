@@ -1,98 +1,85 @@
-import { h } from '../Utils';
+import DomBuilder from '../utils/DomBuilder';
+import Point from "../utils/Point";
 import MediaHandler from './MediaHandler';
-
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-  add(other) {
-    return new Point(this.x + other.x, this.y + other.y);
-  }
-}
+import Lightbox from '../Lightbox';
 
 const SUPPORTED = ['jpg', 'png', 'gif', 'jpeg'];
 export default class ImageHandler extends MediaHandler {
-  static supports(extension) {
+  static supports(extension: string): boolean {
     return SUPPORTED.includes(extension);
   }
 
-  static preload(url) {
+  static preload(url: string) {
     (new Image()).src = url;
   }
 
-  constructor(lightbox, url) {
+  private poll: number;
+  private scale = 1;
+  private offset = new Point(0, 0);
+  private position = new Point(0, 0);
+  private start = new Point(0, 0);
+  private dragging = false;
+  private fullsize = false;
+
+  private image: HTMLImageElement;
+
+  constructor(lightbox: Lightbox, url: string) {
     super(lightbox, url);
 
-    this.poll = false;
-    this.scale = 1;
-    this.offset = new Point(0, 0);
-    this.position = new Point(0, 0);
-    this.start = new Point(0, 0);
-    this.dragging = false;
-    this.fullsize = false;
+    this.shade.addEventListener('mousemove', this.handleDrag.bind(this) as EventListener);
+    window.addEventListener('resize', () => this.reset(), false);
 
-    // >_>
-    this.handleDrag = this.handleDrag.bind(this);
-    this.reset = this.reset.bind(this);
-
-    this.shade.addEventListener('mousemove', this.handleDrag.bind(this));
-    window.addEventListener('resize', this.reset.bind(this), false);
-
-    this.image = h('img#lightbox_content', {
-      draggable: false,
-      src: url,
-      onclick(e) {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      onload: () => {
+    this.image = DomBuilder.create('img')
+      .attr({
+        "id": "lightbox_content",
+        "dragable": false,
+        "src": url
+      }).on("click", evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+      }).on("load", () => {
         window.clearTimeout(this.poll);
         this.reset();
         this.image.classList.add('shown');
-      },
-      onwheel: e => {
-        if (e.deltaY > 0) {
+      }).on("wheel", evt => {
+        if (evt.deltaY > 0) {
           this.scale /= 1.12;
-        } else if (e.deltaY < 0) {
+        } else if (evt.deltaY < 0) {
           this.scale *= 1.12;
         }
         this.update();
-        e.preventDefault();
-      },
-      onmousedown: e => {
-        this.start = new Point(e.clientX, e.clientY);
+        evt.preventDefault();
+      }).on("mousedown", evt => {
+        this.start = new Point(evt.clientX, evt.clientY);
         this.dragging = true;
-        e.preventDefault();
-      },
-      onmouseup: e => {
+        evt.preventDefault();
+      }).on("mouseup", evt => {
         this.commitMove();
-        e.preventDefault();
-      },
-      ondblclick: e => {
+        evt.preventDefault();
+      }).on("dblclick", evt => {
         this.fullsize = !this.fullsize;
         this.scale = this.fullsize ? 1 : this.calculateScale();
         this.update();
 
-        e.preventDefault();
-      }
-    });
-
+        evt.preventDefault();
+      }).build();
+    
     this.shade.appendChild(this.image);
-
-    this.poll = window.setTimeout(this.pollFunction.bind(this), this.settings.pollInterval);
+    this.poll = window.setTimeout(() => {
+      this.pollFunction()
+    }, this.settings.poll_interval);
   }
 
   destroy() {
     window.clearTimeout(this.poll);
     window.removeEventListener('resize', this.reset, false);
     this.shade.removeChild(this.image);
-    this.shade.removeEventListener('mousemove', this.handleDrag);
+    this.shade.removeEventListener('mousemove', this.handleDrag as EventListener);
 
     delete this.image;
   }
 
-  handleDrag(e) {
+  handleDrag(e: MouseEvent) {
     if (e.buttons == 0) {
       this.commitMove();
     } else if (this.dragging) {
@@ -121,7 +108,7 @@ export default class ImageHandler extends MediaHandler {
     this.update(true);
   }
 
-  update(instant) {
+  update(instant = false) {
     if (instant) {
       this.image.classList.add('no-transition');
     }
