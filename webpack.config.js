@@ -8,6 +8,15 @@ const webpack = require('webpack');
 const { processManifest } = require('./utils/manifest');
 
 module.exports = ({ production, platform }, argv) => {
+	const copyPluginPatterns = [
+		{ from: 'src/assets', to: 'assets' },
+		{ from: 'src/manifest.json', transform: content => processManifest(content, platform) },
+	];
+
+	if(platform == "chrome") {
+		copyPluginPatterns.push({ from: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js' });
+	}
+
   const config = {
     mode: production ? "production" : "development",
     entry: {
@@ -38,13 +47,7 @@ module.exports = ({ production, platform }, argv) => {
     plugins: [
       new CleanWebpackPlugin(),
       new MiniCssExtractPlugin({ filename: '[name].css' }),
-      new CopyPlugin({
-        patterns: [
-          { from: 'src/assets', to: 'assets' },
-          { from: 'src/manifest.json', transform: content => processManifest(content, platform) },
-          { from: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js' }
-        ]
-      })
+      new CopyPlugin({ patterns: copyPluginPatterns })
     ]
   };
 
