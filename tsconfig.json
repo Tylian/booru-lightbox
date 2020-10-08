@@ -2,6 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "noImplicitAny": true,
+    "moduleResolution": "node",
     "module": "ESNext",
     "target": "es2018",
     "jsx": "react",

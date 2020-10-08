@@ -4,6 +4,9 @@
  ! Bugfix
  * Notice
 
+== 5.0.2 ==
+! Fixed Chrome build, added web extension polyfill to the Chrome build cause lazy tbh
+
 == 5.0.1 ==
  * Firefox is bullying me
 

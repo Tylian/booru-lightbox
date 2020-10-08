@@ -15,17 +15,20 @@
         {
             "matches": ["*://*.gelbooru.com/*", "*://*.rule34.xxx/*"],
             "css": ["BooruLightbox.css"],
-            "js": ["BooruLightbox.js", "gelbooru.js"]
+            "firefox:js": ["BooruLightbox.js", "gelbooru.js"],
+            "chrome:js": ["browser-polyfill.min.js", "BooruLightbox.js", "gelbooru.js"]
         },
         {
             "matches": ["*://*.e621.net/*", "*://*.e926.net/*"],
             "css": ["BooruLightbox.css"],
-            "js": ["BooruLightbox.js", "ouroboros.js"]
+            "firefox:js": ["BooruLightbox.js", "ouroboros.js"],
+            "chrome:js": ["browser-polyfill.min.js", "BooruLightbox.js", "ouroboros.js"]
         },
         {
             "matches": ["*://*.danbooru.donmai.us/*"],
             "css": ["BooruLightbox.css"],
-            "js": ["BooruLightbox.js", "danbooru.js"]
+            "firefox:js": ["BooruLightbox.js", "danbooru.js"],
+            "chrome:js": ["browser-polyfill.min.js", "BooruLightbox.js", "danbooru.js"]
         }
     ]
 }

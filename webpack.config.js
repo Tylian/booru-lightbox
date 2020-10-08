@@ -41,7 +41,8 @@ module.exports = ({ production, platform }, argv) => {
       new CopyPlugin({
         patterns: [
           { from: 'src/assets', to: 'assets' },
-          { from: 'src/manifest.json', transform: content => processManifest(content, platform) },  
+          { from: 'src/manifest.json', transform: content => processManifest(content, platform) },
+          { from: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js' }
         ]
       })
     ]

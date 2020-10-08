@@ -1,14 +1,14 @@
 # build artifacts
-dist
+dist/
 web-ext-artifacts
 
 # node modules
 node_modules
 
-# other junk
+# other junk like private keys lol
 updates.json
-dist.crx
-dist.pem
+.web-extension-id
+chrome.pem
 
 # ide
 .vscode
